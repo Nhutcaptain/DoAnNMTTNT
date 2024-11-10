@@ -1,0 +1,36 @@
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const bodyParser = require('body-parser');
+
+const app = express();
+const PORT = 3000;
+
+app.use(bodyParser.json({limit: '50mb'}));
+
+app.post('/save-training-data', (req, res) => {
+    const trainingData = req.body;
+    const filePath = path.join(__dirname,'trainingData' ,'trainingData.json');
+    fs.writeFile(filePath, JSON.stringify(trainingData), (err) => {
+        if (err) {
+            console.error('Lỗi khi lưu dữ liệu:', err);
+            return res.status(500).send('Lỗi khi lưu dữ liệu');
+        }
+        res.send('Dữ liệu đã được lưu');
+    });
+})
+app.get('/load-training-data', (req, res) => {
+    const filePath = path.join(__dirname, 'trainingData', 'trainingData.json');
+
+    // Đọc file JSON và gửi về client
+    fs.readFile(filePath, 'utf-8', (err, data) => {
+        if (err) {
+            console.error('Lỗi khi đọc dữ liệu:', err);
+            return res.status(500).send('Lỗi khi đọc dữ liệu');
+        }
+        res.json(JSON.parse(data));
+    });
+});
+app.listen(PORT, () => {
+    console.log(`Server đang chạy tại http://localhost:${PORT}`);
+});
